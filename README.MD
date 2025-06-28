@@ -25,22 +25,50 @@ pip install -r requirements.txt
 python3 rescheduler.py
 ```
 
-to run everyday:
-1. open crontab
+to run everyday (mac only):
+1. create launchd job (adjust name as needed)
 ```bash
-crontab -e
+nano ~/Library/LaunchAgents/com.ryanchang.todoistrescheduler.plist
 ```
 
-2. paste this: this will run the script once everyday at 7 am
-```
-0 7 * * * /[path to your]/run_rescheduler.sh
+2. paste this: this will run the script once everyday (adjust repo name as needed)
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+   "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>com.ryanchang.todoistrescheduler</string>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/Users/ryanchang/Developer/todoist-rescheduler/run_rescheduler.sh</string>
+    </array>
+
+    <key>StartInterval</key>
+    <integer>86400</integer>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/ryanchang/Developer/todoist-rescheduler/launchd.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/ryanchang/Developer/todoist-rescheduler/launchd.log</string>
+  </dict>
+</plist>
 ```
 
-3. enter :x to save and exit 
+3. load the job
+```bash
+launchctl load ~/Library/LaunchAgents/com.ryanchang.todoistrescheduler.plist
+```
 
 4. confirm it worked:
 ```bash
-crontab -l
+launchctl list | grep todoist
 ```
 
 
