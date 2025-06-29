@@ -5,7 +5,7 @@ for my personal use, but feel free to use!
 
 ---
 how to use:
-1. clone the repo
+1. clone the repo (make sure to change file paths to your own)
 
 2. set up your API key
 create an .env file and add this 
