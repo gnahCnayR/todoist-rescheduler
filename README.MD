@@ -47,7 +47,7 @@ nano ~/Library/LaunchAgents/com.ryanchang.todoistrescheduler.plist
     </array>
 
     <key>StartInterval</key>
-    <integer>86400</integer>
+    <integer>21600</integer>
 
     <key>RunAtLoad</key>
     <true/>
