@@ -1,0 +1,33 @@
+name: Todoist Rescheduler
+
+on:
+  schedule:
+    # Run daily at 12:05 AM PST (8:05 AM UTC)
+    - cron: '5 8 * * *'
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  reschedule:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Run rescheduler
+      env:
+        TODOIST_API_KEY: ${{ secrets.TODOIST_API_KEY }}
+      run: python rescheduler.py
+      
+    - name: Log completion
+      run: echo "Rescheduler completed at $(date)" 

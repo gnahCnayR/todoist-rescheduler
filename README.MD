@@ -25,7 +25,19 @@ pip install -r requirements.txt
 python3 rescheduler.py
 ```
 
-to run everyday (mac only):
+run with github actions:
+
+1. **Clone this repo and push to GitHub**
+
+2. **Add your Todoist API key as a GitHub secret:**
+
+3. **Enable GitHub Actions:**
+
+4. **Test the workflow:**
+
+The workflow will run daily at 8:05 AM UTC (12:05 AM PST or 1:05 AM PST) and automatically reschedule your overdue tasks.
+
+<!-- to run everyday (mac only):
 1. create launchd job (adjust name as needed)
 ```bash
 nano ~/Library/LaunchAgents/com.ryanchang.todoistrescheduler.plist
@@ -71,4 +83,4 @@ launchctl load ~/Library/LaunchAgents/com.ryanchang.todoistrescheduler.plist
 launchctl list | grep todoist
 ```
 
-
+ -->

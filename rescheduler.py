@@ -3,6 +3,10 @@
 import os
 import requests
 from datetime import datetime, date
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Load API key from environment variable
 API_TOKEN = os.getenv("TODOIST_API_KEY")
