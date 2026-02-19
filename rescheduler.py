@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import os
-import requests
 from datetime import datetime, date
 from dotenv import load_dotenv
+from todoist_api_python.api import TodoistAPI
 
 # Load environment variables from .env file
 load_dotenv()
@@ -11,56 +11,55 @@ load_dotenv()
 # Load API key from environment variable
 API_TOKEN = os.getenv("TODOIST_API_KEY")
 
-HEADERS = {
-    "Authorization": f"Bearer {API_TOKEN}",
-    "Content-Type": "application/json"
-}
-
-BASE_URL = "https://api.todoist.com/API/v2"
-
 def reschedule_overdue_tasks():
     print("Fetching tasks...")
     try:
-        response = requests.get(f"{BASE_URL}/tasks", headers=HEADERS)
-        response.raise_for_status()
-        tasks = response.json()
-        print(f"Fetched {len(tasks)} tasks.")
+        api = TodoistAPI(API_TOKEN)
+        
+        # Collect all tasks from the paginator
+        all_tasks = []
+        for tasks in api.get_tasks():
+            all_tasks.extend(tasks)
+        
+        print(f"Fetched {len(all_tasks)} tasks.")
     except Exception as e:
         print("Failed to fetch tasks:", e)
         return
     
-    today_str = date.today().isoformat()
-    for idx, task in enumerate(tasks):
-        due = task.get("due")
-
-        if not due:
+    overdue_count = 0
+    for task in all_tasks:
+        if not task.due:
             continue
 
-        if isinstance(due, str):
-            due_str = due
-        elif isinstance(due, dict):
-            due_str = due.get("datetime") or due.get("date")
-        else:
-            print(f"Unexpected due format: {due}")
+        # Get the due date from the task
+        due_date_str = task.due.date
+        if not due_date_str:
             continue
 
         try:
-            due_date = datetime.fromisoformat(due_str).date()
+            # Parse the due date (format: YYYY-MM-DD)
+            # Check if it's already a date object or a string
+            if isinstance(due_date_str, str):
+                due_date = datetime.fromisoformat(due_date_str).date()
+            elif isinstance(due_date_str, date):
+                due_date = due_date_str
+            else:
+                print(f"Unexpected due date type: {type(due_date_str)}")
+                continue
         except Exception as e:
-            print(f"Could not parse due date: {due_str} — {e}")
+            print(f"Could not parse due date: {due_date_str} — {e}")
             continue
 
+        # Check if the task is overdue
         if due_date < date.today():
             try:
-                update_url = f"{BASE_URL}/tasks/{task['id']}"
-                update_payload = {
-                    "due_string": "today"
-                }
-                update_res = requests.post(update_url, headers=HEADERS, json=update_payload)
-                update_res.raise_for_status()
-                print(f"Rescheduled task '{task.get('content')}' to today.")
+                api.update_task(task_id=task.id, due_string="today")
+                print(f"Rescheduled task '{task.content}' to today.")
+                overdue_count += 1
             except Exception as e:
-                print(f"Failed to update task '{task.get('content')}':", e)
+                print(f"Failed to update task '{task.content}':", e)
+    
+    print(f"Rescheduled {overdue_count} overdue tasks.")
         
 
 if __name__ == "__main__":
